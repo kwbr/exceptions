@@ -59,7 +59,7 @@ public class ExceptionsTest {
     }
 
     @Test
-    void stream2() {
+    void stream_with_vavr_try() {
         var input = Stream.of("a", "b", "c", "toolong", "e", "f");
         var handler = new ErrorHandler();
 
