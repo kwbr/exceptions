@@ -1,5 +1,6 @@
 package de.glorybox.exceptions;
 
+import static io.vavr.CheckedFunction1.liftTry;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
@@ -10,7 +11,6 @@ import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
 
-import io.vavr.CheckedFunction1;
 import io.vavr.control.Try;
 
 public class ExceptionsTest {
@@ -47,10 +47,7 @@ public class ExceptionsTest {
                 } catch (InputTooLongException e) {
                     throw new RuntimeException(e);
                 }
-            }).map(item -> {
-                result.add(item);
-                return item;
-            }).forEach(a -> {});
+            }).forEach(item -> result.add(item));
 
         } catch (Exception e) {
             handler.accept(e);
@@ -68,10 +65,10 @@ public class ExceptionsTest {
 
         var result =
                 input
-                    .map(CheckedFunction1.liftTry(Examples::duplicatesShortStrings))
+                    .map(liftTry(Examples::duplicatesShortStrings)) // same as .map(i -> Try.run(() -> Examples.duplicatesShortStrings(i)))
                     .map(t -> t.onFailure(handler))
-                    //.takeWhile(Try::isSuccess)
-                    .flatMap(Try::toJavaStream)
+                    .takeWhile(Try::isSuccess)
+                    .map(Try::get)
                     .collect(Collectors.toList());
 
         assertEquals(List.of("aa", "bb", "cc"), result);
